@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>webRTC chat</title>
+    <link rel="stylesheet" href="master.css">
+    <script src="main.js" charset="utf-8"></script>
+  </head>
+  <body>
+    <div class="set_name">
+      <div>
+        <input class='name' type="text" name="" value="" placeholder="enter your name">
+        <textarea name="name" rows="8" cols="80" placeholder="friends webRTC url"></textarea>
+        <button type="button" name="button">start</button>
+      </div>
+    </div>
+
+    <!-- the chat box -->
+    <div class="container">
+      <template id="message">
+        <div class="wrap">
+          <span></span>
+          <p></p>
+        </div>
+      </template>
+      <div class="chat">
+        <div class="message">
+          <div class="wrap">
+            <span>Bob 23:15</span>
+            <p>a short message</p>
+          </div>
+        </div>
+
+        <div class="message me">
+          <div class="wrap">
+            <span class='head'>You 23:16</span>
+            <p>short</p>
+          </div>
+        </div>
+
+        <div class="message">
+          <div class='wrap'>
+            <span class='head'>Bob 23:17</span>
+            <p>a very nice and loooooong message, bob wanted to let everyone know how loooong this was so he started to act weird.. fucking bob</p>
+          </div>
+        </div>
+      </div>
+      <textarea rows="8" cols="80"></textarea>
+      <button type="button" class='send' name="button">send</button>
+    </div>
+  </body>
+</html>
