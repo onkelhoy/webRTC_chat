@@ -1,8 +1,14 @@
-let express = require('express')
-let app = express()
+const express     = require('express')
+const dotenv      = require('dotenv')
+const http        = require('http')
+const app = express()
+const server = http.createServer(app)
 
-app.get('/test', (req, res) => res.end('hello'))
+// init the websocket server
+require('./index.js')(server)
+dotenv.config()
 
-app.listen(function () {
-  console.log('running on 3000')
-}, 3000)
+
+server.listen(process.env.PORT, function () {
+  console.log('running on ' + process.env.PORT)
+})

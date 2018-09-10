@@ -103,42 +103,104 @@ button.send:focus {
   box-sizing: border-box;
 
   border-radius: 15px;
-
-  flex-direction: column;
-  align-items: center;
-  display: flex;
+  padding: 15px 0;
+}
+.set_name > div > div {
+  width: 90%;
+  margin: 5px 0;
 }
 
 .set_name input {
   padding: 5px 10px;
-  font-size: 16pt;
-  margin-top: 15px;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-
-  border: none;
-  width: calc(85% + 1px);
-}
-.set_name textarea {
-  padding: 5px 10px;
-  height: 100px;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-
-  width: 92%;
   font-size: 11pt;
-  border: none;
-    overflow: hidden;
-}
-.set_name button {
-  padding: 5px 35px;
-  font-size: 16pt;
-  background-color: cornflowerblue;
-  border-radius: 5px;
-  color: white;
-  margin-top: 5px;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
 
+  margin: 0;
   border: none;
+  width: 70%;
+}
+.set_name input:focus {
+  outline: none;
+}
+.set_name input+button {
+  width: 30%;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 0;
+  border-bottom-right-radius: 5px;
+  border-top-right-radius: 5px;
+  font-size: 11pt;
+  margin: 0;
+  background-color: cornflowerblue;
+  color: white;
+  border: none;
+}
+.set_name input+button.loading {
+    background-color: olive;
+    content: '';
+    position: relative;
+    height: 20pt;
+    z-index: 4;
+}
+.set_name input+button.loading > span {
+  content: '';
+  display: block;
+  z-index: 11;
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  left: calc(50% - 9px);
+  top: calc(50% - 9px);
+  border: 2px white dotted;
+  border-radius: 50%;
+
+  transform-origin: center;
+  transform: translate(-50%, -50%);
+  -webkit-animation: rotating 2s infinite;
+}
+.set_name input+button.success {
+  background-color: olive;
+  position: relative;
+  content: '';
+  height: 20pt;
+}
+.set_name input+button.success > span {
+  content: '';
+  display: block;
+  z-index: 11;
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  left: 50%;
+  top: 50%;
+  border: 2px white solid;
+  border-radius: 50%;
+
+  transform: translate(-50%, -50%);
+}
+.set_name input+button.success > span::before,
+.set_name input+button.success > span::after {
+  position: absolute;
+  content: '';
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 3px;
+  transform-origin: left;
+  transform: translate(-1px, 1px) rotate(-45deg);
+
+  background-color: white;
+}
+.set_name input+button.success > span::after {
+  transform: rotate(-135deg) translate(-1px, -1px);
+  width: 12px;
+  outline: none;
+}
+
+.set_name select {
+  font-size: 16pt;
+  width: 60%;
 }
 
 
@@ -147,6 +209,16 @@ textarea {
 }
 .hide {
   display: none;
+}
+.horizontal {
+  flex-direction: row;
+  align-items: center;
+  display: flex;
+}
+.vertical {
+  flex-direction: column;
+  align-items: center;
+  display: flex;
 }
 @keyframes click {
     0% {
@@ -182,4 +254,20 @@ textarea {
       border-bottom-right-radius: 5px;
       content: 'send';
     }
+}
+@keyframes rotating {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes rot {
+  0% {
+    left: 5px;
+  }
+  100% {
+    left: 100px;
+  }
 }

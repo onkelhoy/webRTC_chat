@@ -4,14 +4,23 @@
     <meta charset="utf-8">
     <title>webRTC chat</title>
     <link rel="stylesheet" href="master.css">
-    <script src="main.js" charset="utf-8"></script>
+    <script src="js/connect.js" charset="utf-8"></script>
+    <script src="js/socket.js" charset="utf-8"></script>
+    <script src="js/main.js" charset="utf-8"></script>
   </head>
   <body>
     <div class="set_name">
-      <div>
-        <input class='name' type="text" name="" value="" placeholder="enter your name">
-        <textarea name="name" rows="8" cols="80" placeholder="friends webRTC url"></textarea>
-        <button type="button" name="button">start</button>
+      <div class='vertical'>
+        <div class="horizontal">
+          <input class='name' type="text" name="" value="" placeholder="enter your name">
+          <button class='register' type="button" name="button">connect</button>
+        </div>
+
+        <div class="horizontal">
+          <select class="" name="">
+            <option selected="true" disabled="disabled">connect first</option>
+          </select>
+        </div>
       </div>
     </div>
 
