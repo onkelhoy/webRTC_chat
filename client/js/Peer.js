@@ -2,17 +2,22 @@ class Peer {
   constructor (signalingHost, util) {
     this.socket = null
     this.peerConnection = null
-    this.name = 'bob'
+    this.info = {name: 'bob', id: -1}
     this.util = util
     this.servers = {
       iceServers: [{urls: "stun:stun.l.google.com:19302"}]
     }
+    this.contact = null
+    this.stack = []
+    this.channel
+    this.onopen // when RTC is open
 
+    this.onevent = this.onevent.bind(this)
     this.initialize = this.initialize.bind(this, [signalingHost])
   }
   // we set our name, now lets connect & initialize socket
   set Name (name) {
-    this.name = name
+    this.info.name = name
     this.initialize()
   }
   // we connected to the signaling server, now we give them our name
@@ -20,12 +25,11 @@ class Peer {
     this.socket = new window.WebSocket(signalServer)
     this.socket.onmessage = message => {
       let data = JSON.parse(message.data)
-      console.log(message, data)
       switch (data.type) {
         case 'connect':
-          this.append(data.info); break;
+          this.util.append(data.info); break;
         case 'disconnect':
-          this.remove(data.id); break;
+          this.util.remove(data.id); break;
         case 'offer':
           this.reciveOffer(data); break;
         case 'answer':
@@ -49,25 +53,94 @@ class Peer {
     switch (data.ack) {
       case 'connection':
         this.register(data); break;
+      case 'register':
+        this.createPeer(data.others); break;
     }
   }
+  // register
+  register (data) {
+    this.info.id = data.id
+    this._send({ type: 'register', name: this.info.name })
+  }
+  // TODO: implement on server side so they wont be affected by anything but ping
+  busy () {
+    this._send({ type: 'busy' })
+  }
+  // simple wrap for sending
+  _send (data) {
+    this.socket.send(JSON.stringify(data))
+  }
+
+  // WebRTC stuff
+  createPeer (others) {
+    // ugly code
+    registerResponse()
+
+    this.util.others = others
+    this.util.updateDOM()
+
+    this.peerConnection = new RTCPeerConnection(this.servers)
+    console.log('RTCPeerConnection object was created')
+    this.peerConnection.onicecandidate = this.onevent
+    this.peerConnection.ondatachannel = this.onevent
+  }
   makeOfferTo (id) {
-    this.peerConnection = new
-  }
-  makeAnswerTo (id) {
+    this.setChannel(this.peerConnection.createDataChannel('chat'))
+    this.contact = id
 
+    this.peerConnection.createOffer()
+      .then(offer => this.peerConnection.setLocalDescription(offer))
+      .then(u => this._send({ type: 'offer', to: id, from: this.info, offer: this.peerConnection.localDescription }))
+      .catch(this.util.error)
   }
-  reciveOffer (data) {
+  async reciveOffer (data) {
+    let ans = this.util.confirm(data.from.name)
+    if (!ans) {
+      this._send({ type: 'decline', to: data.from.id, from: this.info })
+      return
+    }
+    this.contact = data.from.id
 
+    this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer))
+    this.peerConnection.createAnswer()
+      .then(answer => this.peerConnection.setLocalDescription(answer))
+      .then(u => this._send({ type: 'answer', to: data.from.id, from: this.info, answer: this.peerConnection.localDescription}))
+      .catch(this.util.error)
   }
   reciveAnswer (data) {
-
+    this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer))
+      .then(u => this.busy())
+      .catch(e => this.util.error(e))
   }
   reciveCandidate (candidate) {
-
+    this.peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
   }
-  register (data) {
-    this.id = data.id
-    this.socket.send(JSON.stringify({ type: 'register', name: this.name }))
+  onevent (event) {
+    console.log('recived event', event)
+    if (event.candidate)
+      this._send({ type: 'candidate', candidate: event.candidate, to: this.contact, from: this.info })
+    else if (event.channel)
+      this.setChannel(event.channel)
+  }
+  setChannel (channel) {
+    this.channel = channel
+    this.channel.onopen = e => {
+      this.onopen()
+      this.stack.reverse()
+      while (this.stack.length > 0)
+        this.send(this.stack.pop())
+    }
+    this.channel.onmessage = function (event) {
+      console.log(event.data)
+    }
+  }
+
+  send (data) {
+    if (!this.channel)
+      this.util.error('You have no channel')
+    else if (this.channel.readyState === 'open')
+      this.channel.send(data)
+    else
+      this.stack.push(data)
   }
 }

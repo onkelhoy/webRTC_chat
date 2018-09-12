@@ -4,7 +4,7 @@ let wss
 module.exports = function (server) {
   wss = new WebSocket.Server({ server })
   wss.connections = 0
-  setInterval(setPulse, 5000) // ping them every 5s
+  setInterval(setPulse, 30000) // ping them every 30s
 
   // client socket connected to our server !
   wss.on('connection', socket => {
@@ -14,7 +14,7 @@ module.exports = function (server) {
 
     console.log('connected', socket.id)
     console.log('current connections', wss.connections)
-    socket.send(JSON.stringify({ type: 'ack', ack: 'connection', id: socket.id }))
+    send(socket, { type: 'ack', ack: 'connection', id: socket.id })
     socket.on('message', data => {
       data = JSON.parse(data)
 
@@ -27,7 +27,7 @@ module.exports = function (server) {
         case 'disconnect':
           disconnect(socket); break;
         case 'offer':
-        case 'reject':
+        case 'decline':
         case 'answer':
         case 'candidate':
           sendTo(socket, data); break;
@@ -39,31 +39,35 @@ module.exports = function (server) {
 
 // TODO: create a connect funciton that connects N clients togheter (with their rtc offers)
 function sendTo (socket, data) {
+  console.log(data.type)
   for (let client of wss.clients) {
-    if (client.id === data.to.id) // finds the client we want to connect to
+    console.log(client.id === data.to, client.id, data.to)
+    if (client.id === data.to) // finds the client we want to connect to
       return client.send(JSON.stringify(data)) // sends the data
   }
 
   // well we did not find it
-  socket.send(JSON.stringify({type: 'error', message: 'Not found'}))
+  send(socket, {type: 'error', message: 'Not found'})
 }
 
 function register (data, socket) {
-  if (!data.name || data.name && /\W/.test(data.name))
-    return socket.send({ type: 'error', message: 'invalid name' })
-  socket.name = data.name
+  if (typeof data.name === 'string' && /[^\w\s]/.test(data.name))
+    return send(socket, { type: 'error', message: 'invalid name' })
 
+  socket.name = data.name
   console.log('register', socket.id, socket.name)
   let others = []
   for (let client of wss.clients) {
     if (client.name) {
       let info = { name: socket.name, id: socket.id }
-      others.push(info)
-      client.send(JSON.stringify({ type: 'connect', info }))
+      if (client.id === socket.id)
+        continue
+      others.push({ name: client.name, id: client.id })
+      send(client, { type: 'connect', info })
     }
   }
 
-  socket.send(JSON.stringify({ type: 'ack', ack: 'register', others }))
+  send(socket, { type: 'ack', ack: 'register', others })
 }
 
 // TODO: this needs to be tested (if others gets the disconnect)
@@ -75,7 +79,7 @@ function disconnect (socket) {
 
   if (socket.name)
     for (let client of wss.clients)
-      client.send(data)
+      client.send(data) // dont stringify every time
 }
 function setPulse () {
   for (let client of wss.clients) { // if its brand new its going to be undefined
@@ -86,6 +90,10 @@ function setPulse () {
     }
 
     client.ping_status = false
-    client.send(JSON.stringify({ type: 'ping' }))
+    send(client, { type: 'ping' })
   }
+}
+
+function send (socket, data) {
+  socket.send(JSON.stringify(data))
 }
