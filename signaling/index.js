@@ -1,27 +1,13 @@
-const WebSocket = require('ws')
-
-const connections = []
-module.exports = function (server) {
-  const wss = new WebSocket.Server({ server })
-
-  // client socket connected to our server !
-  wss.on('connection', socket => {
-    socket.on('register', client_info => {
-      if (!client_info.name || /\W/.test(client_info.name))
-        return socket.send({ error: 'invalid name' })
-
-      client_info.id = 'id#' + Math.round(Math.random()*100000)
-      connections.push(client_info)
-
-      console.log(wss.clients)
-      socket.send({ id: client_info.id, others: connections })
-    })
-
-    wss.on('disconnect')
-  })
-}
+const express = require('express')
+const path    = require('path')
+const router  = express.Router()
 
 
+router.get('/', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../client/index.html'))
+})
+
+module.exports = router
 
 
 

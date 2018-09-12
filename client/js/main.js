@@ -1,4 +1,5 @@
-let textarea, pc
+let textarea
+let peerConnection
 async function init () {
   textarea = document.querySelector('textarea')
   document.querySelector('.container > button').onclick = send
@@ -8,7 +9,7 @@ async function init () {
   let offer = await pc.createOffer()
   pc.setLocalDescription(offer)*/
 
-  socketSetup()
+  // socketSetup()
 }
 function clear () {
 

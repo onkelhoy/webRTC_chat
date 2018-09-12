@@ -3,10 +3,12 @@
   <head>
     <meta charset="utf-8">
     <title>webRTC chat</title>
-    <link rel="stylesheet" href="master.css">
-    <script src="js/connect.js" charset="utf-8"></script>
-    <script src="js/socket.js" charset="utf-8"></script>
-    <script src="js/main.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="./static/master.css">
+    <script src="./static/js/connect.js" charset="utf-8"></script>
+    <script src="./static/js/WebRTC.js" charset="utf-8"></script>
+    <script src="./static/js/main.js" charset="utf-8"></script>
+    
+    <script src="./static/js/Peer.js" charset="utf-8"></script>
   </head>
   <body>
     <div class="set_name">
@@ -18,7 +20,7 @@
 
         <div class="horizontal">
           <select class="" name="">
-            <option selected="true" disabled="disabled">connect first</option>
+            <option selected="true" value=-1 disabled="disabled">connect first</option>
           </select>
         </div>
       </div>
