@@ -8,8 +8,8 @@ const server = http.createServer(app)
 require('./websocket.js')(server)
 dotenv.config()
 
-app.use('/static', express.static('../client/'))
-app.use('/', require('./index.js'))
+app.use('/static', express.static('./client/'))
+app.use('/', require('./signaling/index.js'))
 
 server.listen(process.env.PORT, function () {
   console.log('running on ' + process.env.PORT)
