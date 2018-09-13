@@ -1,4 +1,4 @@
-const signalServer = 'ws://localhost:3000'
+const signalServer = 'ws://peer2peertest.herokuapp.com'
 let textarea, peer, util, before
 let chatBox, template
 async function init () {
