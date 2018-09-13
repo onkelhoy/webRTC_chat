@@ -86,6 +86,7 @@ button.send:focus {
   z-index: 10;
 
   background-color: rgba(100, 100, 100, .4);
+  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
 

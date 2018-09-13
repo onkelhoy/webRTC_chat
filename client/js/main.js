@@ -1,9 +1,12 @@
 const signalServer = 'ws://localhost:3000'
 let textarea, peer, util, before
+let chatBox, template
 async function init () {
   textarea = document.querySelector('textarea')
   document.querySelector('.container > button').onclick = send
   document.querySelector('.set_name button.register').onclick = register
+  chatBox = document.querySelector('div.container > div.chat')
+  template = document.querySelector('template.message').content
 
   util = new Util(document.querySelector('select.list'))
   peer = new Peer(signalServer, util)
@@ -16,20 +19,37 @@ async function init () {
 function open () {
   document.querySelector('.chat').innerHTML = 'start conversation'
   document.querySelector('.set_name').classList.add('hide')
+  peer.on('message', addMessage)
 }
 function send (e) {
   let text = textarea.value
   textarea.value = ''
-  console.log(text)
+  peer.send(JSON.stringify(({name: peer.name, text})))
 
+  write(text, 'me')
   this.focus()
 }
 
 // TODO: scroll to bottom
-function addMessage (name, text) {
-  if (name === window.sessionStorage.getItem('name')) {
+function addMessage (message) {
+  let data = JSON.parse(message.data)
+  write(data.text, data.name)
+}
 
+function write (text, name) {
+  let elm = document.importNode(template.querySelector('div.message'), true)
+
+  let d = new Date()
+  let time = d.getHours() + ':' + d.getMinutes()
+  if (name === 'me') {
+    elm.classList.add('me')
+    elm.querySelector('span').innerText = 'You ' + time
   }
+  else elm.querySelector('span').innerText = name + ' ' + time
+  elm.querySelector('p').innerText = text
+
+  chatBox.appendChild(elm)
+  chatBox.scrollTo(0,chatBox.scrollHeight);
 }
 
 // register handlement
@@ -43,7 +63,7 @@ function register (e) {
   e.target.classList.add('loading')
   e.target.innerHTML = '<span></span>'
 
-  peer.Name = name
+  peer.name = name
 }
 function registerResponse () {
   let btn = document.querySelector('button.register')

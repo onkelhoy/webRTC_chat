@@ -16,10 +16,11 @@ class Peer {
     this.initialize = this.initialize.bind(this, [signalingHost])
   }
   // we set our name, now lets connect & initialize socket
-  set Name (name) {
+  set name (name) {
     this.info.name = name
     this.initialize()
   }
+  get name () { return this.info.name }
   // we connected to the signaling server, now we give them our name
   initialize (signalServer) {
     this.socket = new window.WebSocket(signalServer)
@@ -130,9 +131,6 @@ class Peer {
       while (this.stack.length > 0)
         this.send(this.stack.pop())
     }
-    this.channel.onmessage = function (event) {
-      console.log(event.data)
-    }
   }
 
   send (data) {
@@ -142,5 +140,14 @@ class Peer {
       this.channel.send(data)
     else
       this.stack.push(data)
+  }
+
+  on (type, callback) {
+    if (!this.channel) {
+      console.log('must be initiated first')
+      return
+    }
+
+    this.channel['on'+type] = callback
   }
 }
